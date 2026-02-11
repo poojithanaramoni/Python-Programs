@@ -1,0 +1,84 @@
+class SegmentTree:
+    def __init__(self, data):
+        self.n = len(data)
+        self.mn = [0] * (4 * self.n)
+        self.mx = [0] * (4 * self.n)
+        self.lazy = [0] * (4 * self.n)
+        self._build(0, 0, self.n - 1, data)
+
+    def _build(self, i, l, r, data):
+        if l == r:
+            self.mn[i] = self.mx[i] = data[l]
+            return
+        mid = (l + r) // 2
+        self._build(2 * i + 1, l, mid, data)
+        self._build(2 * i + 2, mid + 1, r, data)
+        self.mn[i] = min(self.mn[2 * i + 1], self.mn[2 * i + 2])
+        self.mx[i] = max(self.mx[2 * i + 1], self.mx[2 * i + 2])
+
+    def _push(self, i, l, r):
+        if self.lazy[i] != 0:
+            self.mn[i] += self.lazy[i]
+            self.mx[i] += self.lazy[i]
+            if l != r:
+                self.lazy[2 * i + 1] += self.lazy[i]
+                self.lazy[2 * i + 2] += self.lazy[i]
+            self.lazy[i] = 0
+
+    def update(self, start, end, val, i, l, r):
+        self._push(i, l, r)
+        if l > end or r < start:
+            return
+        if start <= l and r <= end:
+            self.lazy[i] += val
+            self._push(i, l, r)
+            return
+        mid = (l + r) // 2
+        self.update(start, end, val, 2 * i + 1, l, mid)
+        self.update(start, end, val, 2 * i + 2, mid + 1, r)
+        self.mn[i] = min(self.mn[2 * i + 1], self.mn[2 * i + 2])
+        self.mx[i] = max(self.mx[2 * i + 1], self.mx[2 * i + 2])
+
+    def find_rightmost_zero(self, i, l, r):
+        self._push(i, l, r)
+        if self.mn[i] > 0 or self.mx[i] < 0:
+            return -1
+        if l == r:
+            return l
+        mid = (l + r) // 2
+        res = self.find_rightmost_zero(2 * i + 2, mid + 1, r)
+        if res == -1:
+            res = self.find_rightmost_zero(2 * i + 1, l, mid)
+        return res
+
+class Solution:
+    def longestBalanced(self, nums: list[int]) -> int:
+        n = len(nums)
+        last = {}
+        next_pos = [n] * n
+        for i in range(n - 1, -1, -1):
+            if nums[i] in last:
+                next_pos[i] = last[nums[i]]
+            last[nums[i]] = i
+        prefix = [0] * n
+        seen = set()
+        curr = 0
+        for i in range(n):
+            if nums[i] not in seen:
+                curr += (-1 if nums[i] % 2 == 0 else 1)
+                seen.add(nums[i])
+            prefix[i] = curr
+
+        st = SegmentTree(prefix)
+        ans = 0
+        rz = st.find_rightmost_zero(0, 0, n - 1)
+        if rz != -1:
+            ans = rz + 1
+
+        for i in range(1, n):
+            val = (1 if nums[i-1] % 2 == 0 else -1)
+            st.update(i, next_pos[i-1] - 1, val, 0, 0, n - 1)
+            idx = st.find_rightmost_zero(0, 0, n - 1)
+            if idx >= i:
+                ans = max(ans, idx - i + 1)
+        return ans
