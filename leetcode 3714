@@ -1,0 +1,54 @@
+class Solution:
+    def longestBalanced(self, s: str) -> int:
+        # Helper to handle description c1: longest continuous same char
+        def longest_single(s):
+            res = 0
+            i, n = 0, len(s)
+            while i < n:
+                j = i + 1
+                while j < n and s[j] == s[i]:
+                    j += 1
+                res = max(res, j - i)
+                i = j
+            return res
+
+        # Helper for two-char balanced
+        def longest_pair(s, a, b):
+            res = 0
+            i, n = 0, len(s)
+            while i < n:
+                # skip characters not a/b
+                while i < n and s[i] not in (a, b):
+                    i += 1
+                pos = {0: i - 1}
+                diff = 0
+                while i < n and s[i] in (a, b):
+                    diff += 1 if s[i] == a else -1
+                    if diff in pos:
+                        res = max(res, i - pos[diff])
+                    else:
+                        pos[diff] = i
+                    i += 1
+            return res
+
+        # Helper for all three chars balanced
+        from collections import Counter
+        def longest_three(s):
+            pos = {(0, 0): -1}
+            cnt = Counter()
+            res = 0
+            for i, ch in enumerate(s):
+                cnt[ch] += 1
+                key = (cnt["a"] - cnt["b"], cnt["b"] - cnt["c"])
+                if key in pos:
+                    res = max(res, i - pos[key])
+                else:
+                    pos[key] = i
+            return res
+
+        # Check all cases
+        ans1 = longest_single(s)
+        ans2 = max(longest_pair(s, "a", "b"), longest_pair(s, "b", "c"), longest_pair(s, "a", "c"))
+        ans3 = longest_three(s)
+
+        return max(ans1, ans2, ans3)
