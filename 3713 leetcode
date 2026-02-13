@@ -1,0 +1,29 @@
+class Solution:
+    def longestBalanced(self, s: str) -> int:
+        n = len(s)
+        ans = 0
+
+        # For every start index i
+        for i in range(n):
+            cnt = [0] * 26
+            mx = 0  # max freq of characters seen so far
+            v = 0   # number of distinct characters in current window
+
+            # Expand substring from i to j
+            for j in range(i, n):
+                idx = ord(s[j]) - ord('a')
+                cnt[idx] += 1
+
+                if cnt[idx] == 1:
+                    v += 1
+
+                # update max frequency
+                if cnt[idx] > mx:
+                    mx = cnt[idx]
+
+                # If all distinct characters have same freq:
+                # balanced substring => mx * v == length
+                if mx * v == (j - i + 1):
+                    ans = max(ans, j - i + 1)
+
+        return ans
