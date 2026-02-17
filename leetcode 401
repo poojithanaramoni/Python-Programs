@@ -1,0 +1,14 @@
+class Solution:
+    def readBinaryWatch(self, turnedOn: int):
+        result = []
+        
+        # Hours: 0-11
+        for hour in range(12):
+            # Minutes: 0-59
+            for minute in range(60):
+                # Count total number of 1s in binary representation
+                if (bin(hour).count('1') + bin(minute).count('1')) == turnedOn:
+                    # Format minute to always have two digits
+                    result.append(f"{hour}:{minute:02d}")
+        
+        return result
