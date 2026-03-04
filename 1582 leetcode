@@ -1,0 +1,27 @@
+from typing import List
+
+class Solution:
+    def numSpecial(self, mat: List[List[int]]) -> int:
+        rows = len(mat)
+        cols = len(mat[0])
+        
+        # Count 1s in each row
+        row_count = [0] * rows
+        # Count 1s in each column
+        col_count = [0] * cols
+        
+        # First pass: calculate row and column counts
+        for i in range(rows):
+            for j in range(cols):
+                if mat[i][j] == 1:
+                    row_count[i] += 1
+                    col_count[j] += 1
+        
+        # Second pass: count special positions
+        special_positions = 0
+        for i in range(rows):
+            for j in range(cols):
+                if mat[i][j] == 1 and row_count[i] == 1 and col_count[j] == 1:
+                    special_positions += 1
+        
+        return special_positions
