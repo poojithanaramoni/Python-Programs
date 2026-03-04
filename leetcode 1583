@@ -1,0 +1,37 @@
+from typing import List
+
+class Solution:
+    def unhappyFriends(self, n: int, preferences: List[List[int]], pairs: List[List[int]]) -> int:
+        
+        # Step 1: Create ranking lookup
+        # rank[i][j] = preference rank of friend j for friend i
+        rank = [[0] * n for _ in range(n)]
+        for i in range(n):
+            for order, friend in enumerate(preferences[i]):
+                rank[i][friend] = order
+        
+        # Step 2: Create partner mapping
+        partner = {}
+        for x, y in pairs:
+            partner[x] = y
+            partner[y] = x
+        
+        unhappy_count = 0
+        
+        # Step 3: Check each friend
+        for x in range(n):
+            y = partner[x]  # current partner
+            
+            # Go through all friends x prefers more than y
+            for u in preferences[x]:
+                if u == y:
+                    break  # stop once we reach current partner
+                
+                v = partner[u]  # u's partner
+                
+                # If u prefers x over their current partner v
+                if rank[u][x] < rank[u][v]:
+                    unhappy_count += 1
+                    break
+        
+        return unhappy_count
