@@ -1,0 +1,24 @@
+from typing import List
+import math
+
+class Solution:
+    def maxSubarraySum(self, nums: List[int], k: int) -> int:
+        prefix_sum = 0
+        result = -math.inf
+        
+        # Store minimum prefix sum for each remainder
+        min_prefix = {0: 0}
+        
+        for i, num in enumerate(nums):
+            prefix_sum += num
+            mod = (i + 1) % k
+            
+            if mod in min_prefix:
+                result = max(result, prefix_sum - min_prefix[mod])
+            else:
+                min_prefix[mod] = prefix_sum
+            
+            # Always keep the minimum prefix sum
+            min_prefix[mod] = min(min_prefix.get(mod, prefix_sum), prefix_sum)
+        
+        return result
