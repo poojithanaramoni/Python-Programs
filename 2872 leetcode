@@ -1,0 +1,30 @@
+from typing import List
+from collections import defaultdict
+
+class Solution:
+    def maxKDivisibleComponents(self, n: int, edges: List[List[int]], values: List[int], k: int) -> int:
+        graph = defaultdict(list)
+        
+        # Build graph
+        for u, v in edges:
+            graph[u].append(v)
+            graph[v].append(u)
+        
+        self.count = 0
+        
+        def dfs(node, parent):
+            total = values[node]
+            
+            for nei in graph[node]:
+                if nei != parent:
+                    total += dfs(nei, node)
+            
+            # If divisible by k, form a component
+            if total % k == 0:
+                self.count += 1
+                return 0
+            
+            return total
+        
+        dfs(0, -1)
+        return self.count
